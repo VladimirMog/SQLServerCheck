@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/SQLServerCheck/dbo/Stored Procedures/__GetDatabaseInfo.sql
+/SQLServerCheck/dbo/Functions/fn_GetStyleCSS_FULL.sql
