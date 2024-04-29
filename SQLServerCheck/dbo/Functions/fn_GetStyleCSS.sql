@@ -5,10 +5,14 @@ BEGIN
   DECLARE @StyleCSS NVARCHAR(MAX);
 
   SET @StyleCSS = 
-  N'<style>
+  N'<style type="text/css">
+
+    *, ::after, ::before {
+      box-sizing: border-box
+    }
+
     html {
       font-family: sans-serif;
-      line-height: 1.15;
       -webkit-text-size-adjust: 100%;
       -webkit-tap-highlight-color: transparent
     }
@@ -51,17 +55,7 @@ BEGIN
       border-collapse: collapse
     }
 
-    th {
-      text-align: center;
-	  background-color: #eee
-    }
-
-	meter {
-     width: 100%;
-     height: 20px;
-   }
-
-    .table {
+   .table {
       width: 100%;
       margin-bottom: 1rem;
       color: #212529;
@@ -74,14 +68,6 @@ BEGIN
     border-top: 1px solid #dee2e6
     }
 
-	.right {
-		text-align: right !important;
-		margin-right: 10px
-	}
-
-	.center {
-		text-align: center
-	}
 
     .table thead th {
     vertical-align: bottom;
@@ -104,6 +90,35 @@ BEGIN
     border-bottom-width: 2px
     }
 
+    th {
+      text-align: center;
+	  background-color: #eee
+    }
+
+	meter {
+     width: 100%;
+     height: 20px;
+   }
+
+ 
+  div
+	  .right {
+		  text-align: right !important;
+		  margin-right: 10px
+	  }
+
+	  .center {
+		  text-align: center
+	  }
+
+    .warning {
+      background-color: yellow
+    }
+
+    .error {
+      background-color: #ffa080
+    }
+
     .card {
       position: relative;
       display: -ms-flexbox;
@@ -115,6 +130,7 @@ BEGIN
       background-color: #fff;
       background-clip: border-box;
       border: 0 solid rgba(0,0,0,.125);
+      box-shadow: 0 0 1px rgba(0, 0, 0, .125), 0 1px 3px rgba(0, 0, 0, .2);
       border-radius: .25rem
     }
 
@@ -142,12 +158,14 @@ BEGIN
       border-bottom: 0 solid rgba(0,0,0,.5)
     }
 
-
-
     .card-footer {
       padding: .75rem 1.25rem;
       background-color: rgba(0,0,0,.03);
       border-top: 0 solid rgba(0,0,0,.125)
+    }
+
+    .card .card-title .card-body .card-header .card-footer {
+      border: 1 solid grey !important;
     }
 
     .row {
@@ -156,7 +174,8 @@ BEGIN
       -ms-flex-wrap: wrap;
       flex-wrap: wrap;
       margin-right: -7.5px;
-      margin-left: -7.5px
+      margin-left: -7.5px;
+      width: 100%
     }
 
 	.col-1 {
@@ -231,6 +250,23 @@ BEGIN
 		max-width: 100%
     }
 
+   .col, .col-1, .col-10, .col-11, .col-12, .col-2, .col-3, .col-4, .col-5, .col-6, .col-7, .col-8, .col-9, .col-auto {
+      position: relative;
+      width: 100%;
+      padding-right: 7.5px;
+      padding-left: 7.5px
+    }
+
+    .navbar .container, .navbar .container-fluid, .navbar .container-lg, .navbar .container-md, .navbar .container-sm, .navbar .container-xl {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+        -ms-flex-align: center;
+        align-items: center;
+        -ms-flex-pack: justify;
+        justify-content: space-between
+      }
   </style>';
   RETURN @StyleCSS
 END

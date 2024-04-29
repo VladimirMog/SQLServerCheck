@@ -4,6 +4,7 @@ CREATE   PROCEDURE [dbo].[GetDatabaseSpaceInfo]
 	@width INT = 6,
 	@html NVARCHAR(MAX) OUTPUT
 AS
+DECLARE @class NVARCHAR(200)
 DECLARE @server_name SYSNAME
 DECLARE @sql VARCHAR(400)
 DECLARE @is_cmdshell_enabled BIT
@@ -45,7 +46,7 @@ SET @width = CASE
 				ELSE @width END
 SET @html += N'<div class="col-' + CAST(@width AS NVARCHAR(2)) + '">';
 -- block of the data
-SET @html += N'<div class="card"><div class="card-body"><div class="card-header"><center><b>' + @title + '</b></center></div><table class="table table-bordered"><thead class="bg-gray-light"><tr>';          
+SET @html += N'<div class="card"><div class="card-header"><center><b>' + @title + '</b></center></div><div class="card-body"><table class="table table-bordered"><thead class="bg-gray-light"><tr>';          
 SET @html += N'<th style="width: 30%">Database Name</th>';
 SET @html += N'<th style="width: 15%">Database State</th>';
 SET @html += N'<th style="width: 15%">Recovery Model</th>';
@@ -116,13 +117,18 @@ WHILE (1=1)
 		FETCH NEXT FROM CUR INTO @database_id , @database_name , @database_state , @recovery_model , @max_size_mb , @database_size_mb , @free_percent_size
 		IF @@FETCH_STATUS <> 0 
 			BREAK;
+
+    SET @class = CASE 
+        WHEN @database_state <> 'ONLINE' THEN N' class="warning '
+    ELSE N'class="normal ' END;
+
 		SET @html += N'<tr>';
-		SET @html += N'<td>' + @database_name + '</td>';
-		SET @html += N'<td class="center">' + @database_state + '</td>';
-		SET @html += N'<td class="center">' + @recovery_model + '</td>';
-		SET @html += N'<td class="right">' + ISNULL(FORMAT(@max_size_mb, '####'),'-') + '</td>';
-		SET @html += N'<td class="right">' + ISNULL(FORMAT(@database_size_mb, '####'),'-') + '</td>'; 
-		SET @html += N'<td class="right"><label>' + FORMAT(@free_percent_size, 'N1') + '<meter min="0" max="100" low="30" high="75" optimum="80" value="' + CAST(ROUND(@free_percent_size,1) AS NVARCHAR(5)) + '"></meter></label></td>';
+		SET @html += N'<td ' + @class + '">' + @database_name + '</td>';
+		SET @html += N'<td ' + @class + ' center">' + @database_state + '</td>';
+		SET @html += N'<td ' + @class + ' center">' + @recovery_model + '</td>';
+		SET @html += N'<td ' + @class + ' right">' + ISNULL(FORMAT(@max_size_mb, '####'),'-') + '</td>';
+		SET @html += N'<td ' + @class + ' right">' + ISNULL(FORMAT(@database_size_mb, '####'),'-') + '</td>'; 
+		SET @html += N'<td ' + @class + ' right"><label>' + FORMAT(@free_percent_size, 'N1') + '<meter min="0" max="100" low="30" high="75" optimum="80" value="' + CAST(ROUND(@free_percent_size,1) AS NVARCHAR(5)) + '"></meter></label></td>';
 	END
 
 CLOSE CUR

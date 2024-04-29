@@ -4,6 +4,7 @@ CREATE PROCEDURE [dbo].[GetDisksInfo]
 	@width INT = 6,
 	@html NVARCHAR(MAX) OUTPUT
 AS
+DECLARE @class NVARCHAR(200)
 DECLARE @server_name SYSNAME;
 DECLARE @cmd VARCHAR(400);
 DECLARE @is_cmdshell_enabled BIT;
@@ -42,12 +43,12 @@ SET @width = CASE
 				ELSE @width END
 SET @html += N'<div class="col-' + CAST(@width AS NVARCHAR(2)) + '">';
 -- block of the data
-SET @html += N'<div class="card"><div class="card-body"><div class="card-header"><center><b>' + @title + '</b></center></div><table class="table table-bordered"><thead class="bg-gray-light"><tr>';          
+SET @html += N'<div class="card"><div class="card-header"><center><b>' + @title + '</b></center></div><div class="card-body"><table class="table table-bordered"><thead class="bg-gray-light"><tr>';          
 SET @html += N'<th style="width: 25%">Disk</th>';
 SET @html += N'<th style="width: 25%">Full Size (MB)</th>';
 SET @html += N'<th style="width: 25%">Free Space (MB)</th>';
 SET @html += N'<th style="width: 25%">Free Size (%)</th>';
-SET @html += N'</tr></thead><tbody><tr>';
+SET @html += N'</tr></thead><tbody>';
 
 DECLARE CUR CURSOR LOCAL STATIC FORWARD_ONLY
 FOR
@@ -66,24 +67,30 @@ WHILE (1=1)
 		FETCH NEXT FROM CUR INTO @drive_name , @full_size_mb , @free_size_mb
 		IF @@FETCH_STATUS <> 0 
 			BREAK;
-		SET @html += N'<tr>';
-		SET @html += N'<td>' + @drive_name + '</td>';
-		SET @html += N'<td class="right">' + ISNULL(FORMAT(@full_size_mb, '###'),'-') + '</td>';
-		SET @html += N'<td class="right">' + ISNULL(FORMAT(@free_size_mb, '###'),'-') + '</td>'; 
 		IF ISNULL(@full_size_mb,0) = 0
 			SET @free_percent_size = 0
 		ELSE
 			SET @free_percent_size = 100 * @free_size_mb / @full_size_mb
-		SET @html += N'<td class="right"><label>' + FORMAT(@free_percent_size, 'N1')
+
+    SET @class = CASE 
+        WHEN @free_percent_size < 25 THEN N'class="error '
+        WHEN @free_percent_size < 50 THEN N'class="warning '
+    ELSE N'class="normal ' END;
+
+		SET @html += N'<tr>';
+		SET @html += N'<td ' + @class + '">' + @drive_name + '</td>';
+		SET @html += N'<td ' + @class + 'right">' + ISNULL(FORMAT(@full_size_mb, '###'),'-') + '</td>';
+		SET @html += N'<td ' + @class + 'right">' + ISNULL(FORMAT(@free_size_mb, '###'),'-') + '</td>'; 
+		SET @html += N'<td ' + @class + 'right"><label>' + FORMAT(@free_percent_size, 'N1')
 			+ '<meter min="0" max="100" low="30" high="75" optimum="80" value="' 			
-			+ CAST(@free_percent_size AS NVARCHAR(10)) + '"></meter></label></td>';
+			+ CAST(@free_percent_size AS NVARCHAR(10)) + '"></meter></label></td></tr>';
 
 	END
 CLOSE CUR
 DEALLOCATE CUR
 
 DROP TABLE #output
-SET @html += N'</tr></tbody></table></div></div>';
+SET @html += N'</tbody></table></div></div></div>';
 
 IF @is_cmdshell_enabled = 0
 BEGIN
